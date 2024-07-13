@@ -12,6 +12,7 @@ contract USDT_Escrow is Ownable {
     struct Escrow {
         address sender;
         address receiver;
+        bytes32 receiverHandle;
         uint256 amount;
         uint256 deadline;
         bytes32 escrowId;
@@ -40,7 +41,7 @@ contract USDT_Escrow is Ownable {
         notary = _notary;
     }
 
-    function createEscrow(address _receiver, uint256 _amount, uint256 _duration) external returns (bytes32) {
+    function createEscrow(address _receiver, bytes32 _receiverHandle, uint256 _amount, uint256 _duration) external returns (bytes32) {
         require(usdt.transferFrom(msg.sender, address(this), _amount), "Transfer failed");
 
         bytes32 escrowId = keccak256(abi.encodePacked(msg.sender, _receiver, _amount, block.timestamp, escrowCounter));
@@ -49,6 +50,7 @@ contract USDT_Escrow is Ownable {
         escrows[escrowId] = Escrow({
             sender: msg.sender,
             receiver: _receiver,
+            receiverHandle: _receiverHandle,
             amount: _amount,
             deadline: block.timestamp + _duration,
             escrowId: escrowId,
@@ -88,4 +90,3 @@ contract USDT_Escrow is Ownable {
         return escrow;
     }
 }
-
